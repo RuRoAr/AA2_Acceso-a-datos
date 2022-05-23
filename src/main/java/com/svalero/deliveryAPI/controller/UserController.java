@@ -25,21 +25,21 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/users")
-    public List<User> getAllUsers() {
+    public ResponseEntity<List<User>> getAllUsers() {
         logger.info("Find Users " );
         List<User> users = userService.findAll();
         logger.info("End Find Users " );
-        return users;
+        return ResponseEntity.ok(users);
     }
     @GetMapping("/user/{id}")
-    public User getUser(@PathVariable long id)throws UserNotFoundException{
+    public ResponseEntity<User> getUser(@PathVariable long id)throws UserNotFoundException{
         logger.info("Find Users by id:" + id );
         User user= userService.findById(id);
         logger.info("End Find Users by id:" + id );
-        return user;
+        return ResponseEntity.ok(user);
     }
     @GetMapping("/user")
-    public List<User> getUserBySurname(@RequestParam(name = "Surname", defaultValue = "")
+    public ResponseEntity<List<User>> getUserBySurname(@RequestParam(name = "Surname", defaultValue = "")
                                                             String surname) {//?=
         logger.info("Find Users by surname:" + surname );
         List<User> users;
@@ -49,46 +49,46 @@ public class UserController {
             users = userService.findBySurname(surname);
         }
         logger.info("End Find Users by surname:" + surname );
-        return users;
+        return ResponseEntity.ok(users);
     }
     @DeleteMapping("/user/{id}")
-    public User removeUser(@PathVariable long id)throws UserNotFoundException {
+    public ResponseEntity<User> removeUser(@PathVariable long id)throws UserNotFoundException {
         logger.info("Delete Users by id:" + id );
         User user = userService.deleteUser(id);
         logger.info("End Delete Users by id:" + id );
-        return user;
+        return ResponseEntity.ok(user);
     }
     @PostMapping("/users")
-    public User addUser(@RequestBody User user) {//lo combierte a json
+    public ResponseEntity<User> addUser(@RequestBody User user) {//lo combierte a json
         logger.info("Add Users by id:" );
         User newUser = userService.addUser(user);
         logger.info("End Add Users by id:" );
-        return newUser;
+        return ResponseEntity.ok(newUser);
     }
     @PutMapping("/user/{id}")
-    public User modifyUser(@RequestBody User user, @PathVariable long id)throws UserNotFoundException {
+    public ResponseEntity<User> modifyUser(@RequestBody User user, @PathVariable long id)throws UserNotFoundException {
         logger.info("Modify Users by id:" + id );
         User newUser = userService.modifyUser(id, user);
         logger.info("End Modify Users by id:" + id );
-        return newUser;
+        return ResponseEntity.ok(newUser);
     }
     @PatchMapping("/user/{id}")
-    public User patchUser(@PathVariable long id, @RequestBody String address) throws UserNotFoundException {
+    public ResponseEntity<User> patchUser(@PathVariable long id, @RequestBody String address) throws UserNotFoundException {
         logger.info("Start PatchUser " + id);
         User user = userService.patchUser(id, address);
         logger.info("End patchUser " + id);
-        return user;
+        return ResponseEntity.ok(user);
     }
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorRespons> handleUserNotFoundException(UserNotFoundException unfe){
-        ErrorRespons errorRespons = new ErrorRespons("404", unfe.getMessage());
+        ErrorRespons errorRespons = new ErrorRespons(404, unfe.getMessage());
         logger.info(unfe.getMessage());
         return new ResponseEntity<>(errorRespons, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler
     public ResponseEntity<ErrorRespons> handleException(Exception exception){
-        ErrorRespons errorRespons = new ErrorRespons("999", "Internal Server error   ");
+        ErrorRespons errorRespons = new ErrorRespons(999, "Internal Server error   ");
         return new ResponseEntity<>(errorRespons, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
