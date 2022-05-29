@@ -3,7 +3,7 @@ package com.svalero.deliveryAPI.controller;
 
 import com.svalero.deliveryAPI.domain.Order;
 import com.svalero.deliveryAPI.domain.Restaurant;
-import com.svalero.deliveryAPI.exception.ErrorRespons;
+import com.svalero.deliveryAPI.exception.ErrorResponse;
 import com.svalero.deliveryAPI.exception.OrderNotFoundException;
 import com.svalero.deliveryAPI.exception.RestaurantNotFoundException;
 import com.svalero.deliveryAPI.service.OrderService;
@@ -13,9 +13,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class RestaurantController {
@@ -62,16 +66,6 @@ public class RestaurantController {
     @PostMapping("/restaurants")
     public ResponseEntity<?> addRestaurant(@RequestBody Restaurant restaurant) {//lo combierte a json
        // ResponseEntity
-        if(restaurant.getName() == null)
-            return ResponseEntity.badRequest().body(ErrorRespons.mandatoryField("El nomnbre es un campo obligatorio"));
-        if(restaurant.getAddress() == null)
-            return ResponseEntity.badRequest().body(ErrorRespons.mandatoryField("La direccion es un campo obligatorio"));
-        if(restaurant.getCapacity() == 0)
-            return ResponseEntity.badRequest().body(ErrorRespons.mandatoryField("La capacidad es un campo obligatorio"));
-        if(restaurant.getMediumPrice() == 0)
-            return ResponseEntity.badRequest().body(ErrorRespons.mandatoryField("El precio medio es un campo obligatorio"));
-        if(restaurant.getCategory() == null)
-            return ResponseEntity.badRequest().body(ErrorRespons.mandatoryField("La categoria es un campo obligatorio"));
         logger.info("Add Restaurant "  );
         Restaurant newRestaurant = restaurantService.addRestaurant(restaurant);
         logger.info("End Add Restaurant " );
@@ -93,16 +87,30 @@ public class RestaurantController {
         return ResponseEntity.ok(restaurant);
     }
     @ExceptionHandler(RestaurantNotFoundException.class)
-    public ResponseEntity<ErrorRespons> handleRestaurantNotFoundException(RestaurantNotFoundException rnfe){
-        ErrorRespons errorRespons = new ErrorRespons(404, rnfe.getMessage());
-        logger.info(rnfe.getMessage());
-        return new ResponseEntity<>(errorRespons, HttpStatus.NOT_FOUND);
+    public ResponseEntity<ErrorResponse> handleBikeNotFoundException(RestaurantNotFoundException bnfe) {
+        ErrorResponse errorResponse = ErrorResponse.generalError(101, bnfe.getMessage());
+        logger.error(bnfe.getMessage(), bnfe);
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
+    // TODO Más tipos de excepciones que puedan generar errores
 
     @ExceptionHandler
-    public ResponseEntity<ErrorRespons> handleException(Exception exception){
-        ErrorRespons errorRespons = new ErrorRespons(999, "Internal Server error   ");
-        return new ResponseEntity<>(errorRespons, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ErrorResponse> handleException(Exception exception) {
+        ErrorResponse errorResponse = ErrorResponse.generalError(999, "Internal server error");
+        logger.error(exception.getMessage(), exception);
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleException(MethodArgumentNotValidException manve) {
+        Map<String, String> errors = new HashMap<>();
+        manve.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            String message = error.getDefaultMessage();
+            errors.put(fieldName, message);
+        });
+
+        return ResponseEntity.badRequest().body(ErrorResponse.validationError(errors));
     }
     }

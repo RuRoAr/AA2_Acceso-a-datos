@@ -12,9 +12,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class OrderController {
@@ -87,16 +91,30 @@ public class OrderController {
         return ResponseEntity.ok(order);
     }
     @ExceptionHandler(OrderNotFoundException.class)
-    public ResponseEntity<ErrorRespons> handleOrderNotFoundException(OrderNotFoundException ornfe){
-        ErrorRespons errorRespons = new ErrorRespons(404, ornfe.getMessage());
-        logger.info(ornfe.getMessage());
-        return new ResponseEntity<>(errorRespons, HttpStatus.NOT_FOUND);
+    public ResponseEntity<ErrorResponse> handleBikeNotFoundException(OrderNotFoundException bnfe) {
+        ErrorResponse errorResponse = ErrorResponse.generalError(101, bnfe.getMessage());
+        logger.error(bnfe.getMessage(), bnfe);
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
 
+
     @ExceptionHandler
-    public ResponseEntity<ErrorRespons> handleException(Exception exception){
-        ErrorRespons errorRespons = new ErrorRespons(999, "Internal Server error   ");
-        return new ResponseEntity<>(errorRespons, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ErrorResponse> handleException(Exception exception) {
+        ErrorResponse errorResponse = ErrorResponse.generalError(999, "Internal server error");
+        logger.error(exception.getMessage(), exception);
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleException(MethodArgumentNotValidException manve) {
+        Map<String, String> errors = new HashMap<>();
+        manve.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            String message = error.getDefaultMessage();
+            errors.put(fieldName, message);
+        });
+
+        return ResponseEntity.badRequest().body(ErrorResponse.validationError(errors));
     }
 }
