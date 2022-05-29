@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -22,15 +25,23 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     @Column
+    @NotNull
+    @Pattern(regexp = "[0-9]{8}[A-Z]")
     private String dni;
     @Column
+    @NotNull
+    @NotEmpty
     private String name;
     @Column
+    @NotNull
+    @NotEmpty
     private String surname;
     @Column(name = "brith_date")
     @DateTimeFormat(pattern="dd-MM-yyyy")
     private LocalDate birthDate;
     @Column
+    @NotNull
+    @NotEmpty
     private String address;
 
 

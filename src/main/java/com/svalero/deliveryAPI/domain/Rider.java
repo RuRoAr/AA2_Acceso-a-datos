@@ -11,6 +11,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Data
@@ -31,10 +32,15 @@ public class Rider {
     @NotEmpty
     private String name;
     @Column
+    @NotNull
+    @NotEmpty
     private String surname;
     @Column
+    @NotNull
+    @NotEmpty
     private String vehicle;
     @Column
+    @PositiveOrZero
     private int maxSpeed;
 
     @OneToMany(mappedBy = "rider")
