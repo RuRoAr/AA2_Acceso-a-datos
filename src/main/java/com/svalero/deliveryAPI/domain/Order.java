@@ -7,6 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 
 @Data
 @AllArgsConstructor
@@ -18,14 +21,19 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     @Column
+    @NotNull
+    @PositiveOrZero
     private long price;
     @Column
+    @PositiveOrZero
     private double weight;
     @Column
     private boolean ready;
     @Column
+    @Min(1)
     private int time;
     @Column
+    @PositiveOrZero
     private int distance;
 
     @ManyToOne
