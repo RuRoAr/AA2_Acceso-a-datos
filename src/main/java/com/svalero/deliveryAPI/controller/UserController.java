@@ -18,6 +18,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +64,7 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
     @PostMapping("/users")
-    public ResponseEntity<User> addUser(@RequestBody User user) {//lo combierte a json
+    public ResponseEntity<User> addUser(@Valid @RequestBody User user) {//lo combierte a json
         logger.info("Add Users by id:" );
         User newUser = userService.addUser(user);
         logger.info("End Add Users by id:" );
@@ -90,7 +91,6 @@ public class UserController {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
-    // TODO Más tipos de excepciones que puedan generar errores
 
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleException(Exception exception) {

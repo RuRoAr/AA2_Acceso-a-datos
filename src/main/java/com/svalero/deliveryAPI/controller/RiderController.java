@@ -16,6 +16,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class RiderController {
         return ResponseEntity.ok(riders);
     }
     @GetMapping("/rider/{id}")
-    public ResponseEntity<Rider> getRider(@PathVariable long id)throws RiderNotFoundException{
+    public ResponseEntity<Rider> getRider(@Valid @PathVariable long id)throws RiderNotFoundException{
         logger.info("Find rider by id: " + id );
         Rider rider= riderService.findById(id);
         logger.info("End  rider by id: " + id );
@@ -63,7 +64,7 @@ public class RiderController {
         return ResponseEntity.ok(rider);
     }
     @PostMapping("/riders")
-    public ResponseEntity<Rider> addRider(@RequestBody Rider rider) {//lo combierte a json
+    public ResponseEntity<Rider> addRider(@Valid @RequestBody Rider rider) {//lo combierte a json
         logger.info("Add rider " );
         Rider newRider = riderService.addRider(rider);
         logger.info("End Add rider " );

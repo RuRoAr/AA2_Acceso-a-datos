@@ -17,6 +17,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,7 @@ public class RestaurantController {
         return ResponseEntity.ok(restaurants);
     }
     @GetMapping("/restaurant/{id}")
-    public ResponseEntity <Restaurant> getRestaurant(@PathVariable long id)throws RestaurantNotFoundException{
+    public ResponseEntity <Restaurant> getRestaurant(@Valid @PathVariable long id)throws RestaurantNotFoundException{
         logger.info("Start getRestaurant: " + id);
         Restaurant restaurant= restaurantService.findRestaurant(id);
         logger.info("End getRestaurant: " + id);
@@ -64,7 +65,7 @@ public class RestaurantController {
         return ResponseEntity.ok(restaurant);
     }
     @PostMapping("/restaurants")
-    public ResponseEntity<?> addRestaurant(@RequestBody Restaurant restaurant) {//lo combierte a json
+    public ResponseEntity<?> addRestaurant(@Valid @RequestBody Restaurant restaurant) {//lo combierte a json
        // ResponseEntity
         logger.info("Add Restaurant "  );
         Restaurant newRestaurant = restaurantService.addRestaurant(restaurant);

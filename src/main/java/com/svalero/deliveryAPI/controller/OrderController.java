@@ -16,6 +16,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,7 @@ public class OrderController {
     }
 
     @GetMapping("/order/{id}")
-    public ResponseEntity<Order> getOrder(@PathVariable long id) throws OrderNotFoundException{
+    public ResponseEntity<Order> getOrder(@Valid @PathVariable long id) throws OrderNotFoundException{
         logger.info("Get Order for id: " + id );
         Order order= orderService.findOrder(id);
         logger.info("End Get Order for id: " + id );
@@ -68,7 +69,7 @@ public class OrderController {
 //        return newOrder;
 //    }
     @PostMapping("/orders")
-    public ResponseEntity<Order> addOrder(@RequestBody OrderDto orderDto)throws UserNotFoundException,
+    public ResponseEntity<Order> addOrder(@Valid @RequestBody OrderDto orderDto)throws UserNotFoundException,
             RestaurantNotFoundException, RiderNotFoundException {//lo combierte a json
 //        Order newOrder = orderService.addOrder(orderDto);
 //        return newOrder;
